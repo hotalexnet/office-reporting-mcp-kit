@@ -1,0 +1,97 @@
+{
+  "contract": "office-reporting-mcp/v1",
+  "status": "example",
+  "forbidden_model_args": [
+    "context",
+    "profile_id",
+    "bot_id",
+    "wecom_user_id",
+    "conversation_id",
+    "session_id",
+    "chat_type",
+    "source_message_id",
+    "request_nonce",
+    "request_timestamp",
+    "runtime_instance_id",
+    "domain",
+    "role_name",
+    "actor_user_id",
+    "mcp_client_id",
+    "allowed_profiles",
+    "department",
+    "authorized",
+    "data",
+    "raw_data",
+    "template_path",
+    "output_path",
+    "media_tag",
+    "storage_key",
+    "source_hash",
+    "snapshot_id",
+    "render_key",
+    "renderer_version",
+    "render_cli",
+    "recipient",
+    "delivery_request_id",
+    "mark_sent"
+  ],
+  "tools": {
+    "office_list_templates": {
+      "properties": {
+        "report_type": {
+          "enum": [
+            "balances",
+            "transactions",
+            "income_expense_summary",
+            "entity_comparison"
+          ]
+        },
+        "output_format": {"enum": ["docx", "xlsx", "pptx", "pdf"]},
+        "audience": {"enum": ["internal", "external", "archive"]}
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "office_get_artifact_status": {
+      "properties": {"artifact_id": {}},
+      "required": ["artifact_id"],
+      "additionalProperties": false
+    },
+    "office_create_report": {
+      "properties": {
+        "report_type": {
+          "enum": [
+            "balances",
+            "transactions",
+            "income_expense_summary",
+            "entity_comparison"
+          ]
+        },
+        "output_format": {"enum": ["xlsx"]},
+        "audience": {"enum": ["internal"]},
+        "entity_code": {},
+        "currency": {"enum": ["CNY", "USD", "KRW"]},
+        "start_date": {},
+        "end_date": {},
+        "subject_l1": {},
+        "subject_l2": {},
+        "subject_l3": {},
+        "by_period": {},
+        "by_subject": {}
+      },
+      "required": ["report_type", "output_format", "audience"],
+      "additionalProperties": false
+    },
+    "office_render_report": {
+      "properties": {"artifact_id": {}},
+      "required": ["artifact_id"],
+      "additionalProperties": false
+    },
+    "office_send_report": {
+      "properties": {"artifact_id": {}},
+      "required": ["artifact_id"],
+      "additionalProperties": false
+    }
+  }
+}
+

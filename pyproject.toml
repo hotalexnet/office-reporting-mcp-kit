@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "office-reporting-mcp-kit"
+version = "0.1.0"
+description = "Reusable Office Reporting MCP contract and adapter protocols"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name = "Office Reporting MCP Kit maintainers"}]
+license = {text = "Proprietary"}
+
+[tool.setuptools]
+package-dir = {"" = "python"}
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
