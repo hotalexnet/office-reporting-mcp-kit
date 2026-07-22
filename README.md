@@ -1,62 +1,64 @@
 # Office Reporting MCP Kit
 
-面向 Office 报告生成场景的可复用 MCP 契约、Agent Skill 和 Python Adapter 协议。
+[中文说明](README.zh-CN.md)
 
-这个项目不是一个开箱即用的报表系统，也不是一个直接把数据写进 Word/Excel/PPT/PDF 的渲染器。它提供的是一套安全、可迁移、可测试的“Office 报告 MCP 接入骨架”，用于帮助其他业务系统把报告生成、渲染、发送流程接入到 LLM/Agent，同时把身份、授权、业务数据、模板路径、文件路径和发送确认牢牢留在后端控制边界内。
+Reusable MCP contracts, Agent Skill guidance, and Python adapter protocols for Office report generation workflows.
 
-## 项目有什么用
+This project is not an out-of-the-box reporting system, and it is not a renderer that directly writes data into Word, Excel, PowerPoint, or PDF files. It provides a safe, portable, and testable integration skeleton for Office Reporting MCP workflows. The goal is to help business systems expose report creation, rendering, and delivery to LLMs/Agents while keeping identity, authorization, business data, template paths, filesystem paths, and delivery confirmation under backend control.
 
-当一个 Agent 可以帮用户“生成日报、导出 Excel、制作 PPT、发送 PDF”时，最危险的地方通常不是文件格式本身，而是权限边界：
+## What This Project Is For
 
-- 用户是谁，模型不能自己说了算。
-- 用户有没有权限导出某类报表，模型不能自己判断。
-- 报表数据必须来自后端可信查询，不能来自模型编造或用户粘贴的任意 raw data。
-- 模板、输出路径、渲染命令、存储 key 不能暴露给模型。
-- 附件发送对象必须来自当前会话或平台上下文，不能让模型任意指定 recipient。
-- 只有平台真实发送成功后，后端才能确认 delivery sent。
+When an Agent can help users "generate a daily report", "export an Excel file", "create a PowerPoint deck", or "send a PDF", the main risk is usually not the file format itself. The main risk is the authorization boundary:
 
-本项目解决的是这些边界问题：它把 Office 报告流程拆成标准 MCP 工具链路，并给出 manifest、Skill 指南、Adapter 协议、运行时边界检查和测试样例，方便你在自己的业务系统里复用。
+- The model must not decide who the user is.
+- The model must not decide whether the user is allowed to export a report.
+- Report data must come from trusted backend queries, not from model-generated facts or arbitrary raw data pasted by a user.
+- Templates, output paths, renderer commands, and storage keys must not be exposed to the model.
+- Attachment recipients must come from the current session or platform context, not from model-controlled arguments.
+- The backend may mark delivery as `sent` only after the target platform confirms successful delivery.
 
-## 能做什么
+This project addresses those boundaries by splitting Office report workflows into standard MCP tools and providing a manifest, Skill instructions, adapter protocols, runtime boundary checks, and tests that can be reused in other business systems.
 
-本项目提供以下可复用内容：
+## What It Can Do
 
-- `skills/office-reporting/SKILL.md`：给 LLM/Agent 使用的 Office 报告安全工作流说明。
-- `contracts/office-reporting-mcp.manifest.json`：机器可读的 MCP tool contract manifest。
-- `contracts/examples/finance-office-reporting.manifest.json`：财务报表场景示例 manifest。
-- `python/office_reporting/adapters.py`：项目侧需要实现的 Adapter Protocol。
-- `python/office_reporting/contracts.py`：模型可见参数的 forbidden fields 检查。
-- `python/office_reporting/lifecycle.py`：artifact 生命周期相关数据结构。
-- `python/office_reporting/replay.py`：传输 replay guard 骨架。
-- `tests/test_contracts.py`：manifest 与 Python 常量绑定、forbidden fields、replay guard 的测试样例。
-- `docs/`：中文接入指南、契约说明和安全加固清单。
+This repository provides these reusable pieces:
 
-基于这些内容，你可以在自己的系统中实现：
+- `skills/office-reporting/SKILL.md`: safe Office reporting workflow guidance for LLMs/Agents.
+- `contracts/office-reporting-mcp.manifest.json`: machine-readable MCP tool contract manifest.
+- `contracts/examples/finance-office-reporting.manifest.json`: example manifest for finance reporting.
+- `python/office_reporting/adapters.py`: Adapter Protocols that a project must implement.
+- `python/office_reporting/contracts.py`: forbidden model field checks for model-visible arguments.
+- `python/office_reporting/lifecycle.py`: artifact lifecycle data structures.
+- `python/office_reporting/replay.py`: transport replay guard skeleton.
+- `tests/test_contracts.py`: sample tests for manifest binding, forbidden fields, and replay guard behavior.
+- `docs/`: Chinese integration guide, contract notes, and security hardening checklist.
 
-- 列出当前用户被授权使用的 Office 模板。
-- 创建后端授权的报表 artifact intent。
-- 基于后端签发的数据快照渲染 Word、Excel、PowerPoint 或 PDF。
-- 查询 artifact 生命周期状态。
-- 通过受控 delivery adapter 把 artifact 发送到企业微信、聊天会话、邮件或其他平台。
-- 用测试锁住 MCP schema、manifest 和 forbidden fields，防止后续开发把敏感字段暴露给模型。
+Using these pieces, a project can implement:
 
-## 不能做什么
+- Listing Office templates authorized for the current user.
+- Creating backend-authorized report artifact intents.
+- Rendering Word, Excel, PowerPoint, or PDF artifacts from backend-signed data snapshots.
+- Querying artifact lifecycle status.
+- Sending artifacts through a controlled delivery adapter to WeCom, chat sessions, email, or other platforms.
+- Testing MCP schemas, manifests, and forbidden fields so future changes do not expose sensitive controls to the model.
 
-本项目刻意不提供以下内容：
+## What It Does Not Do
 
-- 不提供项目私有用户、profile、bot、角色、部门或权限策略。
-- 不提供数据库查询、业务报表 SQL 或业务数据实现。
-- 不提供真实模板文件、模板路径、输出路径或存储路径。
-- 不提供 renderer CLI、LibreOffice/Office 转换命令封装。
-- 不提供企业微信、邮件或其他平台的真实发送实现。
-- 不提供可直接部署的 MCP Server。
-- 不提供任何 credentials、gateway key、token、账号或 runtime patch。
+This project intentionally does not provide:
 
-也就是说，本项目提供的是“安全契约和接入骨架”，真正的 identity、authorization、source query、renderer、artifact store、delivery、audit 都必须由你的业务项目自己实现。
+- Project-specific users, profiles, bots, roles, departments, or authorization policies.
+- Database queries, business report SQL, or business data implementations.
+- Real template files, template paths, output paths, or storage paths.
+- Renderer CLI wrappers, LibreOffice/Office conversion commands, or document conversion services.
+- Real WeCom, email, or platform delivery implementations.
+- A ready-to-deploy MCP Server.
+- Credentials, gateway keys, tokens, accounts, or runtime patches.
 
-## 标准工具链路
+In short, this project provides the safe contract and integration skeleton. The real identity, authorization, source query, renderer, artifact store, delivery, and audit implementations must come from your business project.
 
-推荐的 MCP 工具链路是：
+## Standard Tool Workflow
+
+The recommended MCP tool workflow is:
 
 ```text
 office_list_templates
@@ -67,26 +69,26 @@ office_send_report
 platform delivery confirm
 ```
 
-典型流程：
+Typical flow:
 
-1. Agent 调用 `office_list_templates`，只看到当前 actor 被授权的模板 metadata。
-2. Agent 根据用户需求选择 report type、format、audience 和受控 scope。
-3. Agent 调用 `office_create_report` 创建 artifact intent。
-4. 后端重新解析 actor，执行授权，查询业务事实，签发 source hash/snapshot。
-5. Agent 调用 `office_render_report`。
-6. 后端通过受控 renderer 渲染到服务端路径，并校验输出文件。
-7. Agent 调用 `office_get_artifact_status` 查询状态。
-8. Agent 调用 `office_send_report` 请求发送。
-9. delivery adapter 根据当前 runtime/session/recipient 做发送。
-10. 只有平台确认发送成功后，后端才能标记 `sent`。
+1. The Agent calls `office_list_templates` and sees only template metadata authorized for the current actor.
+2. The Agent selects a report type, format, audience, and controlled scope based on the user request.
+3. The Agent calls `office_create_report` to create an artifact intent.
+4. The backend resolves the actor again, authorizes the request, queries business facts, and issues a source hash/snapshot.
+5. The Agent calls `office_render_report`.
+6. The backend renders through a controlled renderer into a server-owned path and validates the output file.
+7. The Agent calls `office_get_artifact_status` to check lifecycle status.
+8. The Agent calls `office_send_report` to request delivery.
+9. The delivery adapter sends through the current runtime/session/recipient context.
+10. The backend marks delivery `sent` only after the platform confirms successful delivery.
 
-## MCP 工具说明
+## MCP Tool Reference
 
 ### `office_list_templates`
 
-列出当前 actor 被服务端授权的 Office 模板。
+Lists Office templates authorized by the server for the current actor.
 
-模型可传的字段由项目 manifest 决定，通常是：
+Model-visible fields are defined by the project manifest. Typical fields are:
 
 ```text
 report_type
@@ -94,9 +96,9 @@ output_format
 audience
 ```
 
-返回值应该只包含模型安全的模板 metadata，例如 template id、version、display name、支持的 format、audience、hash 等。
+Responses should contain only model-safe template metadata, such as template id, version, display name, supported format, audience, and hash.
 
-禁止返回：
+Never return:
 
 ```text
 template_path
@@ -108,9 +110,9 @@ raw business data
 
 ### `office_create_report`
 
-创建后端授权的 artifact intent。
+Creates a backend-authorized artifact intent.
 
-模型可见参数只能是项目定义的闭集或受控 filter，例如：
+Model-visible parameters must be project-defined closed enums or controlled filters, such as:
 
 ```text
 report_type
@@ -123,16 +125,16 @@ end_date
 currency
 ```
 
-后端必须完成：
+The backend must:
 
-- 从 runtime 解析 actor。
-- 重新执行 authorization。
-- 从后端查询业务事实。
-- 生成 `snapshot_id` 和 `source_hash`。
-- 选择授权模板版本。
-- 创建 artifact intent。
+- Resolve actor identity from runtime context.
+- Re-run authorization.
+- Query business facts from the backend.
+- Generate `snapshot_id` and `source_hash`.
+- Select an authorized template version.
+- Create the artifact intent.
 
-模型不能传：
+The model must not provide:
 
 ```text
 data
@@ -147,27 +149,27 @@ mark_sent
 
 ### `office_render_report`
 
-渲染并校验已授权 artifact。
+Renders and validates an authorized artifact.
 
-模型只应传：
+The model should provide only:
 
 ```text
 artifact_id
 ```
 
-后端必须重新确认当前 actor/session 是否可以渲染该 artifact，并通过 renderer adapter 生成文件。渲染输出路径、renderer CLI、storage key 仍然不能暴露给模型。
+The backend must re-check whether the current actor/session can render the artifact and then generate the file through the renderer adapter. Render output paths, renderer CLI, and storage keys must remain hidden from the model.
 
 ### `office_get_artifact_status`
 
-查询当前 actor/session 可读 artifact 的生命周期状态。
+Queries lifecycle status for an artifact readable by the current actor/session.
 
-模型只应传：
+The model should provide only:
 
 ```text
 artifact_id
 ```
 
-返回值应该使用 allow-list，只返回模型安全字段，例如：
+Responses should use an allow-list and include only model-safe fields, such as:
 
 ```text
 artifact_id
@@ -182,25 +184,25 @@ created_at
 expires_at
 ```
 
-不能返回 storage key、文件路径、media reference、source hash、actor context 或 recipient context。
+Do not return storage keys, filesystem paths, media references, source hashes, actor context, or recipient context.
 
 ### `office_send_report`
 
-请求把已渲染 artifact 发送到当前授权 recipient。
+Requests delivery of a rendered artifact to the currently authorized recipient.
 
-模型只应传：
+The model should provide only:
 
 ```text
 artifact_id
 ```
 
-recipient 必须由 delivery adapter 从可信 runtime/session/platform context 中解析，不能由模型提供。delivery 只能在真实平台发送成功后确认 sent。
+The recipient must be resolved by the delivery adapter from trusted runtime/session/platform context. The model must not provide the recipient. Delivery may be confirmed as sent only after the target platform reports success.
 
-## 模型禁止控制的字段
+## Fields The Model Must Not Control
 
-`contracts/office-reporting-mcp.manifest.json` 和 `python/office_reporting/contracts.py` 共同维护 forbidden fields。
+`contracts/office-reporting-mcp.manifest.json` and `python/office_reporting/contracts.py` jointly maintain the forbidden fields list.
 
-模型或 MCP client 不应该传递这些字段：
+The model or MCP client must not provide these fields:
 
 ```text
 context
@@ -237,31 +239,32 @@ delivery_request_id
 mark_sent
 ```
 
-项目实现必须双层防护：
+Project implementations must use two layers of protection:
 
-1. MCP tool schema 设置 `additionalProperties: false`。
-2. wrapper/runtime 调用 `reject_model_controlled_fields()` 或实现等价的 fail-closed 检查。
+1. Set `additionalProperties: false` in MCP tool schemas.
+2. Call `reject_model_controlled_fields()` in wrappers/runtime code, or implement an equivalent fail-closed check.
 
-## Adapter 架构
+## Adapter Architecture
 
-项目接入时需要实现 `python/office_reporting/adapters.py` 中的协议。
+A project must implement the protocols in `python/office_reporting/adapters.py`.
 
-| Adapter | 职责 | 关键边界 |
+| Adapter | Responsibility | Boundary |
 |---|---|---|
-| `IdentityAdapter` | 从可信 runtime context 解析当前 actor | 不能从模型参数读取身份 |
-| `AuthorizationAdapter` | 判断 actor 是否可创建某类报告 | 不能信任模型传入 role/authorized |
-| `TemplateRegistryAdapter` | 返回当前 actor 被授权模板 metadata | 不能返回模板路径 |
-| `ReportSourceAdapter` | 查询后端业务事实并签发 source | 不能使用模型 raw data |
-| `ArtifactStoreAdapter` | 管理 intent、status、render 授权和生命周期 | 不能仅凭 artifact id 跨用户读取 |
-| `RendererAdapter` | 渲染并校验输出文件 | 不能暴露 renderer CLI 或输出路径 |
-| `DeliveryAdapter` | 解析 recipient、reserve、send、confirm | 不能接收模型 recipient/mark_sent |
-| `AuditAdapter` | 记录 client/runtime/session/tool/artifact/delivery 审计 | 不能把审计上下文透传给模型 |
+| `IdentityAdapter` | Resolve the current actor from trusted runtime context | Must not read identity from model arguments |
+| `AuthorizationAdapter` | Decide whether the actor may create a report | Must not trust model-provided role/authorized fields |
+| `TemplateRegistryAdapter` | Return template metadata authorized for the current actor | Must not return template paths |
+| `ReportSourceAdapter` | Query backend business facts and issue a validated source | Must not use model-provided raw data |
+| `ArtifactStoreAdapter` | Manage intent, status, render authorization, and lifecycle | Must not allow cross-user access by artifact id alone |
+| `RendererAdapter` | Render and validate output files | Must not expose renderer CLI or output paths |
+| `DeliveryAdapter` | Resolve recipient, reserve delivery, send, and confirm | Must not accept model-provided recipient/mark_sent |
+| `AuditAdapter` | Record client/runtime/session/tool/artifact/delivery audit events | Must not pass internal audit context through to the model |
 
-## 仓库结构
+## Repository Layout
 
 ```text
 .
 ├── README.md
+├── README.zh-CN.md
 ├── pyproject.toml
 ├── contracts/
 │   ├── office-reporting-mcp.manifest.json
@@ -285,70 +288,70 @@ mark_sent
     └── test_contracts.py
 ```
 
-## 安装与本地开发
+## Installation And Local Development
 
-要求：
+Requirements:
 
 - Python 3.11+
 - pip
 
-安装为可编辑包：
+Install as an editable package:
 
 ```bash
 python3 -m pip install -e .
 ```
 
-运行测试：
+Run tests:
 
 ```bash
 python3 -m unittest discover -s tests
 ```
 
-当前测试覆盖：
+Current tests cover:
 
-- manifest 中的 `forbidden_model_args` 与 Python 常量一致。
-- forbidden fields 会被运行时检查拒绝。
-- 未声明字段会被运行时检查拒绝。
-- trusted gateway transport 可以跳过 replay guard。
-- 外部 transport 缺少共享 nonce store 时 fail closed。
+- `forbidden_model_args` in the manifest matches the Python constant.
+- Forbidden fields are rejected by runtime checks.
+- Undeclared fields are rejected by runtime checks.
+- Trusted gateway transport can skip the replay guard.
+- External transport fails closed when the shared nonce store is missing.
 
-## 如何在项目中使用
+## How To Use In A Project
 
-### 1. 复制 Skill
+### 1. Copy The Skill
 
-把：
+Copy or install:
 
 ```text
 skills/office-reporting/SKILL.md
 ```
 
-复制或安装到你的 Agent/LLM skill 系统中。
+into your Agent/LLM skill system.
 
-这个 Skill 告诉模型：
+The Skill tells the model:
 
-- 只能走后端授权的 Office artifact 工具。
-- 不能传 raw business data。
-- 不能使用路径、模板路径或 renderer CLI。
-- 不能自己判断发送成功。
-- 出现权限或模板缺失时应该收窄请求或说明缺失前置条件。
+- Use only backend-authorized Office artifact tools.
+- Do not pass raw business data.
+- Do not use paths, template paths, or renderer CLI.
+- Do not decide whether delivery succeeded.
+- Narrow the request or explain missing prerequisites when authorization or templates are unavailable.
 
-### 2. 定义项目 manifest
+### 2. Define A Project Manifest
 
-从通用模板开始：
+Start from the generic manifest:
 
 ```text
 contracts/office-reporting-mcp.manifest.json
 ```
 
-然后把示例 enum 替换成你的业务闭集。
+Replace example enums with your business-owned closed sets.
 
-例如财务场景可以参考：
+For a finance example, see:
 
 ```text
 contracts/examples/finance-office-reporting.manifest.json
 ```
 
-示例 report types：
+Example report types:
 
 ```text
 balances
@@ -357,7 +360,7 @@ income_expense_summary
 entity_comparison
 ```
 
-示例 output formats：
+Example output formats:
 
 ```text
 docx
@@ -366,7 +369,7 @@ pptx
 pdf
 ```
 
-示例 audience：
+Example audience values:
 
 ```text
 internal
@@ -374,11 +377,11 @@ external
 archive
 ```
 
-注意：`domain` 不建议作为模型可见参数。它应该由项目 adapter、服务端路由或 MCP server 配置固定。
+Note: `domain` is not recommended as a model-visible argument. It should be fixed by the project adapter, server-side route, or MCP server configuration.
 
-### 3. 绑定 MCP tool schema
+### 3. Bind MCP Tool Schemas
 
-每个 MCP tool 的 JSON Schema 应该和 manifest 保持一致，至少满足：
+Each MCP tool JSON Schema should match the manifest and at least include:
 
 ```json
 {
@@ -386,11 +389,11 @@ archive
 }
 ```
 
-建议添加测试，确保实际 tool schema、manifest 和 forbidden fields 不会漂移。
+Add tests to ensure the actual tool schema, manifest, and forbidden fields do not drift apart.
 
-### 4. 实现 Adapter
+### 4. Implement Adapters
 
-在你的项目中实现这些协议：
+Implement these protocols in your project:
 
 ```python
 from office_reporting.adapters import (
@@ -405,11 +408,11 @@ from office_reporting.adapters import (
 )
 ```
 
-这些协议只定义边界和职责，不绑定具体数据库、消息平台、对象存储、模板引擎或 renderer。
+These protocols define boundaries and responsibilities only. They do not bind you to a specific database, messaging platform, object store, template engine, or renderer.
 
-### 5. 在 wrapper 中拒绝模型控制字段
+### 5. Reject Model-Controlled Fields In Wrappers
 
-示例：
+Example:
 
 ```python
 from office_reporting.contracts import reject_model_controlled_fields
@@ -427,11 +430,11 @@ def office_create_report(args, runtime):
     # Resolve actor from runtime, authorize, query source, create artifact...
 ```
 
-### 6. 接入 replay guard
+### 6. Add Replay Guard
 
-如果 MCP transport 不是可信的 in-process/gateway-key 模式，就需要 nonce、timestamp 和共享 nonce store。
+If the MCP transport is not a trusted in-process/gateway-key mode, it needs nonce, timestamp, and a shared nonce store.
 
-示例：
+Example:
 
 ```python
 from office_reporting.replay import ReplayCheck, require_replay_guard
@@ -446,9 +449,9 @@ require_replay_guard(
 )
 ```
 
-### 7. 做真实 smoke test
+### 7. Run A Real Smoke Test
 
-上线前至少跑通：
+Before enabling the flow in production, verify at least:
 
 ```text
 list templates
@@ -460,11 +463,11 @@ platform confirms sent
 status/audit can explain result
 ```
 
-如果其中任一步没有真实后端实现，只能启用只读能力，例如 list/status，不能启用 create/render/send。
+If any step does not have a real backend implementation, enable only read-only capabilities such as list/status. Do not enable create/render/send.
 
-## 最小伪代码示例
+## Minimal Pseudocode Example
 
-下面是一个简化 wrapper 结构，仅用于说明边界，不是完整实现：
+This simplified wrapper shows the boundary. It is not a full implementation:
 
 ```python
 def office_create_report(args, runtime, adapters):
@@ -505,68 +508,68 @@ def office_create_report(args, runtime, adapters):
     }
 ```
 
-## 安全原则
+## Security Principles
 
-接入项目必须遵守这些不变量：
+Integrating projects must preserve these invariants:
 
-1. 服务端 policy 是唯一授权边界。
-2. identity/context 不进入模型可填写 schema。
-3. `domain` 由项目 adapter 或服务端路由固定，不能让模型自由传。
-4. 业务事实由后端查询和签发，不能使用模型 raw data。
-5. 模板只能来自授权 template registry，不能使用模型传入路径。
-6. response 必须使用 allow-list，不能透传内部 service view。
-7. delivery 只能由 adapter 在平台发送成功后确认 `sent`。
-8. media reference 不是权限凭证，不能从历史对话复用。
+1. Server-side policy is the only authorization boundary.
+2. Identity/context fields must not enter model-fillable schemas.
+3. `domain` is fixed by the project adapter or server-side route, not by the model.
+4. Business facts are queried and signed by the backend, not supplied as model raw data.
+5. Templates come only from the authorized template registry, not model-provided paths.
+6. Responses use allow-lists and must not pass through internal service views.
+7. Delivery is confirmed as `sent` only by the adapter after platform success.
+8. Media references are not permission tokens and must not be reused from conversation history.
 
-详细说明见：
+More details:
 
 - `docs/integration-guide-cn.md`
 - `docs/contract-and-adapter-cn.md`
 - `docs/security-hardening-cn.md`
 
-## 常见问题
+## FAQ
 
-### 这个项目能直接生成 Word/Excel/PPT/PDF 吗？
+### Can this project directly generate Word/Excel/PowerPoint/PDF files?
 
-不能。它不包含真实 renderer 或模板文件。你需要在项目中实现 `RendererAdapter`，并接入自己的 Office 渲染服务、LibreOffice、模板引擎或文档生成管线。
+No. It does not include a real renderer or template files. You need to implement `RendererAdapter` in your project and connect it to your Office rendering service, LibreOffice, template engine, or document generation pipeline.
 
-### 为什么不允许模型传 `template_path` 或 `output_path`？
+### Why can't the model provide `template_path` or `output_path`?
 
-因为路径是服务端权限边界的一部分。模型一旦能控制路径，就可能读取或覆盖非授权文件。模板选择必须来自后端授权的 template registry，输出路径必须由 artifact store/renderer 控制。
+Paths are part of the server-side permission boundary. If the model controls paths, it may read or overwrite unauthorized files. Template selection must come from a backend-authorized template registry, and output paths must be controlled by the artifact store/renderer.
 
-### 为什么不允许模型传 `raw_data`？
+### Why can't the model provide `raw_data`?
 
-报告里的业务事实必须来自后端可信查询和签发。模型传入 raw data 会绕过业务权限、数据审计、source hash 和 drift check。
+Business facts in reports must come from trusted backend queries and signed sources. Model-provided raw data bypasses business authorization, data audit, source hash, and drift checks.
 
-### 为什么 `office_send_report` 不允许传 recipient？
+### Why can't `office_send_report` accept recipient?
 
-recipient 必须由当前平台会话或后端授权上下文解析。模型指定 recipient 会绕过会话和平台权限，可能导致跨会话或跨用户发送。
+Recipient must be resolved from the current platform session or backend authorization context. A model-provided recipient can bypass session and platform authorization and may cause cross-session or cross-user delivery.
 
-### 可以只使用其中一部分吗？
+### Can I use only part of this kit?
 
-可以。最安全的渐进方式是先只接入：
+Yes. The safest incremental path is to start with read-only tools:
 
 ```text
 office_list_templates
 office_get_artifact_status
 ```
 
-确认 identity、authorization、audit、schema 绑定测试完整后，再启用 create/render/send。
+After identity, authorization, audit, and schema binding tests are complete, enable create/render/send.
 
-### 如何扩展新的 report type？
+### How do I add a new report type?
 
-每新增一个 `report_type`，至少补齐：
+For every new `report_type`, add at least:
 
 - manifest enum
 - MCP tool schema enum
 - template/policy provisioning
 - backend source query
-- source hash 或 snapshot 签发
-- renderer 支持
+- source hash or snapshot signing
+- renderer support
 - response allow-list test
 - forbidden fields test
-- 真实平台 send smoke test
+- real platform send smoke test
 
 ## License
 
-当前 `pyproject.toml` 标记为 proprietary。若要公开复用，建议在项目根目录补充明确的 `LICENSE` 文件，并同步更新 `pyproject.toml`。
+`pyproject.toml` currently marks this project as proprietary. If you intend to make it reusable as an open project, add an explicit `LICENSE` file at the repository root and update `pyproject.toml` accordingly.
