@@ -572,4 +572,4 @@ For every new `report_type`, add at least:
 
 ## License
 
-`pyproject.toml` currently marks this project as proprietary. If you intend to make it reusable as an open project, add an explicit `LICENSE` file at the repository root and update `pyproject.toml` accordingly.
+This project is licensed under the MIT License. See `LICENSE` for details.

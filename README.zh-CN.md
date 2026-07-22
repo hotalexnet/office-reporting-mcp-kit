@@ -571,4 +571,4 @@ office_get_artifact_status
 
 ## License
 
-当前 `pyproject.toml` 标记为 proprietary。若要公开复用，建议在项目根目录补充明确的 `LICENSE` 文件，并同步更新 `pyproject.toml`。
+本项目使用 MIT License。详情见 `LICENSE`。
