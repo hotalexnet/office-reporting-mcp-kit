@@ -571,4 +571,4 @@ office_get_artifact_status
 
 ## License
 
-本项目使用 MIT License。详情见 `LICENSE`。
+本项目使用 Apache License 2.0。详情见 `LICENSE`。

@@ -9,7 +9,7 @@ description = "Reusable Office Reporting MCP contract and adapter protocols"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{name = "Office Reporting MCP Kit maintainers"}]
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 
 [tool.setuptools]
 package-dir = {"" = "python"}

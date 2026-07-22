@@ -572,4 +572,4 @@ For every new `report_type`, add at least:
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for details.
+This project is licensed under the Apache License, Version 2.0. See `LICENSE` for details.
