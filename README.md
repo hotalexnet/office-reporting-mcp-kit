@@ -1,6 +1,9 @@
 # Office Reporting MCP Kit
 
-[中文说明](README.zh-CN.md)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-yellow.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Runtime: Python 3](https://img.shields.io/badge/runtime-python3-blue.svg)](https://www.python.org/)
+[![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-2ea44f.svg)](#standard-tool-workflow)
+**English** | [**中文**](./README.zh-CN.md)
 
 Reusable MCP contracts, Agent Skill guidance, and Python adapter protocols for Office report generation workflows.
 
@@ -19,7 +22,7 @@ When an Agent can help users "generate a daily report", "export an Excel file", 
 
 This project addresses those boundaries by splitting Office report workflows into standard MCP tools and providing a manifest, Skill instructions, adapter protocols, runtime boundary checks, and tests that can be reused in other business systems.
 
-## What It Can Do
+## What It Does
 
 This repository provides these reusable pieces:
 
